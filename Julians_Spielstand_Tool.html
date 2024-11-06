@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Julian's Spielstand Tool</title>
+    <link rel="icon" href="https://www.rot-weiss-essen.de/wp-content/themes/RotWeissEssen/images/Rot-Weiss-Essen-Vereinslogo.png" type="image/png">
+    <style>
+        /* Allgemeine Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5; /* Leicht grauer Hintergrund */
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Zentriert horizontal */
+            min-height: 100vh;
+            justify-content: flex-start; /* Setzt die Box am oberen Rand */
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .tool-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            background-color: #fff; /* Weiße Box */
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Schatten für einen 3D-Effekt */
+            text-align: center; /* Text innerhalb der Box zentrieren */
+            margin-top: 30px; /* Abstand vom oberen Rand */
+            transition: background-color 0.3s;
+        }
+
+        h1 {
+            display: flex;
+            align-items: center;
+            font-size: 28px;
+            margin-bottom: 30px;
+            justify-content: center; /* Titel zentrieren */
+        }
+
+        .logo {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: space-between; /* Nebeneinander in Desktop-Version */
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* Lässt die Elemente bei Bedarf umschlagen */
+        }
+
+        .control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-direction: column; /* Eingabefelder und Pfeile untereinander in mobile Ansicht */
+        }
+
+        .button, input, button {
+            background-color: #E1001E; /* Rot für die Buttons */
+            border: none;
+            color: #f5f5f5;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover, button:hover {
+            background-color: #B3001A;  /* Dunkleres Rot beim Hover */
+        }
+
+        .button:active, button:active {
+            background-color: #990018;  /* Noch dunkleres Rot beim Klick */
+        }
+
+        input {
+            background-color: #f5f5f5;
+            color: #333;
+            border-radius: 5px;
+            padding: 10px;
+            width: 150px;
+        }
+
+        /* Dark Mode */
+        body.dark {
+            background-color: #121212;
+            color: #f5f5f5;
+        }
+
+        body.dark .tool-container {
+            background-color: #1f1f1f; /* Dunklere Box im Darkmode */
+        }
+
+        body.dark .output {
+            background-color: #333;
+            color: #f5f5f5;
+        }
+
+        body.dark .control input {
+            background-color: #444;
+            color: #f5f5f5;
+            border: 1px solid #666;
+        }
+
+        /* Dark Mode Button */
+        .dark-mode-toggle {
+            background-color: #E1001E; /* Rot für den Button */
+            color: #f5f5f5;
+            padding: 8px 20px;
+            border-radius: 5px; /* Weniger Rundung */
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .dark-mode-toggle:hover {
+            background-color: #B3001A;
+        }
+
+        .dark-mode-toggle .sun {
+            display: none;
+        }
+
+        body.dark .dark-mode-toggle .moon {
+            display: none;
+        }
+
+        body.dark .dark-mode-toggle .sun {
+            display: inline-block;
+        }
+
+        body:not(.dark) .dark-mode-toggle .moon {
+            display: inline-block;
+        }
+
+        .score-controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .score-controls .control {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .copy-button {
+            margin-top: 20px;
+        }
+
+        /* Output Box Styles */
+        .output {
+            font-size: 22px;
+            padding: 20px;
+            background-color: #e6e6e6; /* Heller Hintergrund für den Output */
+            border-radius: 10px;
+            margin-top: 20px;
+            word-wrap: break-word;
+            white-space: pre-wrap; /* Behalten der Formatierung */
+            display: block;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: normal; /* Keine fette Schrift mehr */
+        }
+
+        /* Toast Notification Styles */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #f5f5f5;
+            text-align: center;
+            border-radius: 5px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            bottom: 30px;
+            left: 50%;
+            font-size: 17px;
+            transition: visibility 0s, opacity 0.5s ease-in-out;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Mobile View */
+        @media only screen and (max-width: 768px) {
+            .controls {
+                display: block;
+                width: 100%;
+                gap: 10px;
+            }
+
+            .control {
+                display: block;
+                width: 100%;
+                text-align: center; /* Zentrierung der Eingabefelder */
+                margin-bottom: 15px;
+            }
+
+            .control input {
+                width: 70%; /* Eingabefelder schmaler */
+                max-width: 250px; /* Maximale Breite für Eingabefelder */
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .mobile-control {
+                font-size: 28px;
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+            }
+
+            .mobile-control button {
+                font-size: 24px; /* Kleinere Emoji-Buttons */
+                padding: 8px;
+                cursor: pointer;
+                background-color: #E1001E;
+                color: white;
+                border: none;
+                border-radius: 5px;
+            }
+
+            .mobile-control button:hover {
+                background-color: #B3001A;
+            }
+
+            .mobile-control button:active {
+                background-color: #990018;
+            }
+
+            /* Sicherstellen, dass alle Elemente untereinander sind */
+            .score-controls {
+                display: block;
+                text-align: center;
+            }
+
+            /* Zentrierung der Eingabefelder */
+            .control input {
+                width: 100%;
+                max-width: 250px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .tool-container {
+                padding: 20px;
+                max-width: 100%;
+                margin-top: 10px;
+            }
+        }
+/* Footer Styles */
+.footer {
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #f5f5f5; /* Standard Hintergrundfarbe */
+    color: #333; /* Standard Textfarbe */
+}
+
+.footer a {
+    color: #E1001E; /* Rot für Links */
+    text-decoration: none;
+    margin: 0 15px;
+    font-size: 16px;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Dark Mode Styles für Footer */
+body.dark .footer {
+    background-color: #333; /* Dunkler Hintergrund im Dark Mode */
+    color: #f5f5f5; /* Helle Textfarbe im Dark Mode */
+}
+
+body.dark .footer a {
+    color: #f5f5f5; /* Helle Links im Dark Mode */
+}
+
+body.dark .footer a:hover {
+    color: #E1001E; /* Rot bei Hover im Dark Mode */
+}
+
+    </style>
+</head>
+<body>
+
+<button class="dark-mode-toggle" onclick="toggleDarkMode()">
+    <span class="moon">🌙</span>
+    <span class="sun">☀️</span>
+</button>
+
+<div class="tool-container">
+    <h1>
+        <img src="https://www.rot-weiss-essen.de/wp-content/themes/RotWeissEssen/images/Rot-Weiss-Essen-Vereinslogo.png" alt="Logo" class="logo">
+        Julian's Spielstand Tool
+    </h1>
+
+    <div class="controls">
+        <!-- Minute Input -->
+        <div class="control">
+            <label>Minute:</label>
+            <input type="number" id="minuteInput" value="0" min="0" onchange="updateOutput()"/>
+            <div class="mobile-control">
+                <button onclick="adjustValue('minute', 1)">⬆️</button>
+                <button onclick="adjustValue('minute', -1)">⬇️</button>
+            </div>
+        </div>
+
+        <!-- Heim-Score Input -->
+        <div class="control">
+            <label>Heim-Score:</label>
+            <input type="number" id="homeScoreInput" value="0" min="0" onchange="updateOutput()"/>
+            <div class="mobile-control">
+                <button onclick="adjustValue('homeScore', 1)">⬆️</button>
+                <button onclick="adjustValue('homeScore', -1)">⬇️</button>
+            </div>
+        </div>
+
+        <!-- Auswärts-Score Input -->
+        <div class="control">
+            <label>Auswärts-Score:</label>
+            <input type="number" id="awayScoreInput" value="0" min="0" onchange="updateOutput()"/>
+            <div class="mobile-control">
+                <button onclick="adjustValue('awayScore', 1)">⬆️</button>
+                <button onclick="adjustValue('awayScore', -1)">⬇️</button>
+            </div>
+        </div>
+
+        <!-- Hashtag Input -->
+        <div class="control">
+            <label>Hashtag:</label>
+            <input type="text" id="hashtagInput" value="RWE" onchange="updateOutput()"/>
+        </div>
+
+        <!-- Copy Button -->
+        <button class="copy-button button" onclick="copyText()">Text kopieren</button>
+    </div>
+
+    <!-- Ausgabe -->
+    <div class="output">
+        <p id="outputText">⏱️ 0' | # 0:0 | #RWE</p>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<!-- Footer -->
+<div class="footer">
+    <a href="https://htmlpreview.github.io/?https://github.com/yungjulian/julians-tools/blob/main/Julians_Liveticker_Tool.html">Liveticker Tool</a>
+    <a href="https://htmlpreview.github.io/?https://github.com/yungjulian/julians-tools/blob/main/Julians_Posting_Tool.html">Posting Tool</a>
+    <a href="https://htmlpreview.github.io/?https://github.com/yungjulian/julians-tools/blob/main/Julians_Spielstand_Tool.html">Spielstand Tool</a>
+</div>
+
+<script>
+    // Darkmode Toggle
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark");
+    }
+
+    // Werte aktualisieren
+    function updateOutput() {
+        let minute = document.getElementById("minuteInput").value;
+        let homeScore = document.getElementById("homeScoreInput").value;
+        let awayScore = document.getElementById("awayScoreInput").value;
+        let hashtag = document.getElementById("hashtagInput").value;
+
+        // Ausgabe-Text aktualisieren
+        document.getElementById("outputText").textContent = `⏱️ ${minute}' | #${hashtag} ${homeScore}:${awayScore} | #RWE`;
+    }
+
+    // Text kopieren
+    function copyText() {
+        let outputText = document.getElementById("outputText").textContent;
+        navigator.clipboard.writeText(outputText);
+        showToast(outputText);
+    }
+
+    // Toast Notification anzeigen
+    function showToast(text) {
+        let toast = document.getElementById("toast");
+        toast.textContent = `Text kopiert: ${text}`;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    // Werte mit Pfeilen anpassen (nur mobile Ansicht)
+    function adjustValue(field, amount) {
+        let inputField = document.getElementById(field + 'Input');
+        let currentValue = parseInt(inputField.value);
+        inputField.value = currentValue + amount;
+        updateOutput();
+    }
+</script>
+
+</body>
+</html>
