@@ -265,44 +265,6 @@
                 margin-top: 10px;
             }
         }
-/* Footer Styles */
-.footer {
-    width: 100%;
-    padding: 20px;
-    text-align: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-    background-color: #f5f5f5; /* Standard Hintergrundfarbe */
-    color: #333; /* Standard Textfarbe */
-}
-
-.footer a {
-    color: #E1001E; /* Rot für Links */
-    text-decoration: none;
-    margin: 0 15px;
-    font-size: 16px;
-}
-
-.footer a:hover {
-    text-decoration: underline;
-}
-
-/* Dark Mode Styles für Footer */
-body.dark .footer {
-    background-color: #333; /* Dunkler Hintergrund im Dark Mode */
-    color: #f5f5f5; /* Helle Textfarbe im Dark Mode */
-}
-
-body.dark .footer a {
-    color: #f5f5f5; /* Helle Links im Dark Mode */
-}
-
-body.dark .footer a:hover {
-    color: #E1001E; /* Rot bei Hover im Dark Mode */
-}
 
     </style>
 </head>
@@ -315,7 +277,9 @@ body.dark .footer a:hover {
 
 <div class="tool-container">
     <h1>
-        <img src="https://www.rot-weiss-essen.de/wp-content/themes/RotWeissEssen/images/Rot-Weiss-Essen-Vereinslogo.png" alt="Logo" class="logo">
+		<a href="https://yungjulian.github.io/julians-tools/">
+			<img src="https://www.rot-weiss-essen.de/wp-content/themes/RotWeissEssen/images/Rot-Weiss-Essen-Vereinslogo.png" alt="Logo" class="logo">
+		</a>
         Julian's Spielstand Tool
     </h1>
 
@@ -368,15 +332,6 @@ body.dark .footer a:hover {
 
 <!-- Toast Notification -->
 <div id="toast" class="toast"></div>
-
-<!-- Footer -->
-<div class="footer">
-        	<a href="https://yungjulian.github.io/liveticker-tool/">Liveticker Tool</a>
-		<a href="https://yungjulian.github.io/posting-tool/">Posting Tool</a>
-		<a href="https://yungjulian.github.io/julians-tools/">Startseite</a>
-		<a href="https://yungjulian.github.io/spielstand-tool/">Spielstand Tool</a>
-		<a href="https://yungjulian.github.io/schriftarten-tool/">Schriftarten Tool</a>
-</div>
 
 <script>
     // Darkmode Toggle
